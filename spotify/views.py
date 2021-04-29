@@ -53,19 +53,27 @@ class ArtistDetail(APIView):
         artist = ArtistSerializer(artist,  context={'request' : request})
         return Response(artist.data)
 
-    def put(self, request, pk, format=None):
-        artist = self.get_object(pk)
-        tracks = Track.objects.filter(album_id__artist_id= artist).update(times_played=F('times_played')+1)
-        return Response(status=status.HTTP_200_OK)
-
     def delete(self, request, pk, format=None):
         artist = self.get_object(pk)
         artist.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class ArtistPlay(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Artist.objects.get(pk=pk)
+        except Artist.DoesNotExist:
+            raise Http404
+
+    def put(self, request, pk, format=None):
+        artist = self.get_object(pk)
+        tracks = Track.objects.filter(album_id__artist_id= artist).update(times_played=F('times_played')+1)
+        return Response(status=status.HTTP_200_OK)
 #albums
 class AlbumList(APIView):
     queryset = Album.objects.all()
+    
 
     @csrf_exempt
     def get(self, request, format=None):
@@ -98,6 +106,19 @@ class AlbumDetail(APIView):
         album = self.get_object(pk)
         album.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class AlbumPlay(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Album.objects.get(pk=pk)
+        except Album.DoesNotExist:
+            raise Http404
+    
+    def put(self, request, pk, format=None):
+        album = self.get_object(pk)
+        tracks = Track.objects.filter(album_id= artist).update(times_played=F('times_played')+1)
+        return Response(status=status.HTTP_200_OK)
 
 #tracks
 class TrackList(APIView):
@@ -205,7 +226,9 @@ class TrackDetail(APIView):
         track = self.get_object(pk)
         track = TrackSerializer(track,  context={'request' : request})
         return Response(track.data)
-    
+
+class TrackPlay(APIView):
+
     def put(self, request, pk, format=None):
         tracks = Track.objects.filter(id=pk).update(times_played=F('times_played')+1)
         return Response(status=status.HTTP_200_OK)

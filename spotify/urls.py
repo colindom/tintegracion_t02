@@ -14,4 +14,7 @@ urlpatterns = [
     path('artists/<str:pk>/tracks', views.ArtistTrackList.as_view(), name= 'artist_tracks'),
     path('albums/<str:pk>/tracks', views.AlbumTrackList.as_view(), name='album_tracks'),
     path('tracks/<str:pk>', views.TrackDetail.as_view(), name='track'),
+    path('artists/<str:pk>/albums/play', views.ArtistPlay.as_view(), name='partist'),
+    path('albums/<str:pk>/tracks/play', views.AlbumPlay.as_view(), name='palbum'),
+    path('tracks/<str:pk>/play', views.TrackPlay.as_view(), name='ptrack')
 ]
