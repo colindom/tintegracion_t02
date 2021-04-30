@@ -21,7 +21,7 @@ class ArtistList(APIView):
     
     @csrf_exempt
     def post(self, request, format=None):
-        mrequest = request.data.dict()
+        mrequest = request.data
         mrequest['id'] = b64encode(mrequest['name'].encode()).decode('utf-8')[:22]
         new_artist = ArtistSerializer(data=mrequest, context={'request' : request})
         if new_artist.is_valid():
@@ -150,7 +150,7 @@ class ArtistAlbumList(APIView):
             artist = Artist.objects.get(pk=pk)
         except Artist.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        mrequest = request.data.dict()
+        mrequest = request.data
         mrequest['id'] = b64encode((mrequest['name'] + ":" + artist.id).encode()).decode('utf-8')[:22]
         new_album = AlbumSerializer(data=mrequest, context={'request' : request, 'artist': artist})
         if new_album.is_valid():
@@ -199,7 +199,7 @@ class AlbumTrackList(APIView):
             album = Album.objects.get(pk=pk)
         except Album.DoesNotExist:
             raise Http404
-        mrequest = request.data.dict()
+        mrequest = request.data
         mrequest['id'] = b64encode((mrequest['name'] + ":" + album.id).encode()).decode('utf-8')[:22]
         new_track = TrackSerializer(data=mrequest, context={'request' : request, 'album':album})
         if new_track.is_valid():
