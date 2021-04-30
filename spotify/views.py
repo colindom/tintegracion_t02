@@ -204,21 +204,20 @@ class AlbumTrackList(APIView):
         try:
             album = Album.objects.get(pk=pk)
         except Album.DoesNotExist:
-            raise Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         try:
             mrequest = request.data
             mrequest['id'] = b64encode((mrequest['name'] + ":" + album.id).encode()).decode('utf-8')[:22]
             new_track = TrackSerializer(data=mrequest, context={'request' : request, 'album':album})
             if new_track.is_valid():
-                search = Track.objects.filter(id= b64encode((new_track.validated_data['name'] + ":" + album.id).encode()).decode('utf-8'))[:22]
                 if len(search) == 0:
                     new_track.save()
                     return Response(new_track.data, status=status.HTTP_201_CREATED)
-                else:
-                    if len(new_track.errors) == 1 and ('id' in new_track.errors) and new_track.errors['id'][0] == 'track with this id already exists.':
-                        search = Track.objects.filter(id= mrequest['id'])
-                        result = TrackSerializer(search.first(), context={'request': request})
-                        return Response(result.data, status = status.HTTP_409_CONFLICT)
+            else:
+                if len(new_track.errors) == 1 and ('id' in new_track.errors) and new_track.errors['id'][0] == 'track with this id already exists.':
+                    search = Track.objects.filter(id= mrequest['id'])
+                    result = TrackSerializer(search.first(), context={'request': request})
+                    return Response(result.data, status = status.HTTP_409_CONFLICT)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
