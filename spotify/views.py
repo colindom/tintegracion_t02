@@ -21,17 +21,20 @@ class ArtistList(APIView):
     
     @csrf_exempt
     def post(self, request, format=None):
-        mrequest = request.data
-        mrequest['id'] = b64encode(mrequest['name'].encode()).decode('utf-8')[:22]
-        new_artist = ArtistSerializer(data=mrequest, context={'request' : request})
-        if new_artist.is_valid():
-            search = Artist.objects.filter(id= b64encode(new_artist.validated_data['name'].encode()).decode('utf-8'))[:22]
-            if len(search) == 0:
-                new_artist.save()
-                return Response(new_artist.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(search.first(), status = status.HTTP_409_CONFLICT)
-        return Response(new_artist.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            mrequest = request.data
+            mrequest['id'] = b64encode(mrequest['name'].encode()).decode('utf-8')[:22]
+            new_artist = ArtistSerializer(data=mrequest, context={'request' : request})
+            if new_artist.is_valid():
+                search = Artist.objects.filter(id= b64encode(new_artist.validated_data['name'].encode()).decode('utf-8'))[:22]
+                if len(search) == 0:
+                    new_artist.save()
+                    return Response(new_artist.data, status=status.HTTP_201_CREATED)
+                else:
+                    return Response(search.first(), status = status.HTTP_409_CONFLICT)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 #artists/<artist_id>
 class ArtistDetail(APIView):
@@ -149,18 +152,21 @@ class ArtistAlbumList(APIView):
         try:
             artist = Artist.objects.get(pk=pk)
         except Artist.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        mrequest = request.data
-        mrequest['id'] = b64encode((mrequest['name'] + ":" + artist.id).encode()).decode('utf-8')[:22]
-        new_album = AlbumSerializer(data=mrequest, context={'request' : request, 'artist': artist})
-        if new_album.is_valid():
-            search = Album.objects.filter(id= b64encode((new_album.validated_data['name'] + ":" + artist.id).encode()).decode('utf-8'))[:22]
-            if len(search) == 0:
-                new_album.save()
-                return Response(new_album.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(search.first(), status = status.HTTP_409_CONFLICT)
-        return Response(new_album.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        try:
+            mrequest = request.data
+            mrequest['id'] = b64encode((mrequest['name'] + ":" + artist.id).encode()).decode('utf-8')[:22]
+            new_album = AlbumSerializer(data=mrequest, context={'request' : request, 'artist': artist})
+            if new_album.is_valid():
+                search = Album.objects.filter(id= b64encode((new_album.validated_data['name'] + ":" + artist.id).encode()).decode('utf-8'))[:22]
+                if len(search) == 0:
+                    new_album.save()
+                    return Response(new_album.data, status=status.HTTP_201_CREATED)
+                else:
+                    return Response(search.first(), status = status.HTTP_409_CONFLICT)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
     
 
@@ -198,18 +204,21 @@ class AlbumTrackList(APIView):
         try:
             album = Album.objects.get(pk=pk)
         except Album.DoesNotExist:
-            raise Http404
-        mrequest = request.data
-        mrequest['id'] = b64encode((mrequest['name'] + ":" + album.id).encode()).decode('utf-8')[:22]
-        new_track = TrackSerializer(data=mrequest, context={'request' : request, 'album':album})
-        if new_track.is_valid():
-            search = Track.objects.filter(id= b64encode((new_track.validated_data['name'] + ":" + album.id).encode()).decode('utf-8'))[:22]
-            if len(search) == 0:
-                new_track.save()
-                return Response(new_track.data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(search.first(), status = status.HTTP_409_CONFLICT)
-        return Response(new_track.errors, status=status.HTTP_400_BAD_REQUEST)
+            raise Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        try:
+            mrequest = request.data
+            mrequest['id'] = b64encode((mrequest['name'] + ":" + album.id).encode()).decode('utf-8')[:22]
+            new_track = TrackSerializer(data=mrequest, context={'request' : request, 'album':album})
+            if new_track.is_valid():
+                search = Track.objects.filter(id= b64encode((new_track.validated_data['name'] + ":" + album.id).encode()).decode('utf-8'))[:22]
+                if len(search) == 0:
+                    new_track.save()
+                    return Response(new_track.data, status=status.HTTP_201_CREATED)
+                else:
+                    return Response(search.first(), status = status.HTTP_409_CONFLICT)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response(new_track.errors, status=status.HTTP_400_BAD_REQUEST)
 #tracks/<track_id>
 
 class TrackDetail(APIView):
