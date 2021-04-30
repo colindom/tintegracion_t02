@@ -120,7 +120,7 @@ class AlbumPlay(APIView):
     
     def put(self, request, pk, format=None):
         album = self.get_object(pk)
-        tracks = Track.objects.filter(album_id= artist).update(times_played=F('times_played')+1)
+        tracks = Track.objects.filter(album_id= album).update(times_played=F('times_played')+1)
         return Response(status=status.HTTP_200_OK)
 
 #tracks
