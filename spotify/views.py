@@ -233,6 +233,11 @@ class TrackDetail(APIView):
         track = self.get_object(pk)
         track = TrackSerializer(track,  context={'request' : request})
         return Response(track.data)
+    
+    def delete(self, request, pk, format=None):
+        album = self.get_object(pk)
+        album.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class TrackPlay(APIView):
 
