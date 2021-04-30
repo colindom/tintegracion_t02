@@ -163,11 +163,12 @@ class ArtistAlbumList(APIView):
                     new_album.save()
                     return Response(new_album.data, status=status.HTTP_201_CREATED)
                 else:
+                    print("HERE")
                     if len(new_album.errors) == 1 and ('id' in new_album.errors) and new_album.errors['id'][0] == 'album with this id already exists.':
                         search = Album.objects.filter(id= mrequest['id'])
                         result = AlbumSerializer(search.first(), context={'request': request})
                         return Response(result.data, status = status.HTTP_409_CONFLICT)
-                return Response(status = status.HTTP_400_BAD_REQUEST)
+            return Response(status = status.HTTP_400_BAD_REQUEST)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     
