@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
-
+import django_heroku
+import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +26,7 @@ SECRET_KEY = 'ggu_kv=k!h2hhmlp5dih89n_2y*tg6&1*nw84jdznpy=v1+a1n'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -74,20 +75,23 @@ WSGI_APPLICATION = 'musicapi.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+#DATABASES = {
+ #   'default': {
+ ##       'ENGINE': 'django.db.backends.postgresql_psycopg2',#
+#
+ #       'NAME': 'musicapi',
+
+  #      'USER': 'postgres',
+#
+ #       'PASSWORD': 'apple',
+#
+ #       'HOST': 'localhost',
+#
+ #       'PORT': '',
+  #  }
+#}
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-
-        'NAME': 'musicapi',
-
-        'USER': 'postgres',
-
-        'PASSWORD': 'apple',
-
-        'HOST': 'localhost',
-
-        'PORT': '',
-    }
+    'default' : dj_database_url.config()
 }
 
 
@@ -138,3 +142,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [],
     'DEFAULT_PERMISSION_CLASSES': []
 }
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+django_heroku.settings(locals())
