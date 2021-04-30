@@ -158,12 +158,9 @@ class ArtistAlbumList(APIView):
             mrequest['id'] = b64encode((mrequest['name'] + ":" + artist.id).encode()).decode('utf-8')[:22]
             new_album = AlbumSerializer(data=mrequest, context={'request' : request, 'artist': artist})
             if new_album.is_valid():
-                search = Album.objects.filter(id= b64encode((new_album.validated_data['name'] + ":" + artist.id).encode()).decode('utf-8'))[:22]
-                if len(search) == 0:
-                    new_album.save()
-                    return Response(new_album.data, status=status.HTTP_201_CREATED)
+                new_album.save()
+                return Response(new_album.data, status=status.HTTP_201_CREATED)
             else:
-                print("HERE")
                 if len(new_album.errors) == 1 and ('id' in new_album.errors) and new_album.errors['id'][0] == 'album with this id already exists.':
                     search = Album.objects.filter(id= mrequest['id'])
                     result = AlbumSerializer(search.first(), context={'request': request})
