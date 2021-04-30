@@ -26,16 +26,16 @@ class ArtistList(APIView):
             mrequest['id'] = b64encode(mrequest['name'].encode()).decode('utf-8')[:22]
             new_artist = ArtistSerializer(data=mrequest, context={'request' : request})
             if new_artist.is_valid():
-                search = Artist.objects.filter(id= b64encode(new_artist.validated_data['name'].encode()).decode('utf-8'))[:22]
-                if len(search) == 0:
                     new_artist.save()
                     return Response(new_artist.data, status=status.HTTP_201_CREATED)
-                else:
-                    return Response(search.first(), status = status.HTTP_409_CONFLICT)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            else:
+                if len(new_artist.errors) == 1 and ('id' in new_artist.errors) and new_artist.errors['id'][0] == 'artist with this id already exists.':
+                    search = Artist.objects.filter(id= mrequest['id'])
+                    result = ArtistSerializer(search.first(), context={'request': request})
+                    return Response(result.data, status = status.HTTP_409_CONFLICT)
+            return Response(status = status.HTTP_400_BAD_REQUEST)
         except:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(status = status.HTTP_400_BAD_REQUEST)
 #artists/<artist_id>
 class ArtistDetail(APIView):
     """
@@ -163,11 +163,13 @@ class ArtistAlbumList(APIView):
                     new_album.save()
                     return Response(new_album.data, status=status.HTTP_201_CREATED)
                 else:
-                    return Response(search.first(), status = status.HTTP_409_CONFLICT)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+                    if len(new_album.errors) == 1 and ('id' in new_album.errors) and new_album.errors['id'][0] == 'album with this id already exists.':
+                        search = Album.objects.filter(id= mrequest['id'])
+                        result = AlbumSerializer(search.first(), context={'request': request})
+                        return Response(result.data, status = status.HTTP_409_CONFLICT)
+                return Response(status = status.HTTP_400_BAD_REQUEST)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-
     
 
 #artists/<artist_id>/tracks
@@ -215,10 +217,13 @@ class AlbumTrackList(APIView):
                     new_track.save()
                     return Response(new_track.data, status=status.HTTP_201_CREATED)
                 else:
-                    return Response(search.first(), status = status.HTTP_409_CONFLICT)
+                    if len(new_track.errors) == 1 and ('id' in new_track.errors) and new_track.errors['id'][0] == 'track with this id already exists.':
+                        search = Track.objects.filter(id= mrequest['id'])
+                        result = TrackSerializer(search.first(), context={'request': request})
+                        return Response(result.data, status = status.HTTP_409_CONFLICT)
             return Response(status=status.HTTP_400_BAD_REQUEST)
         except:
-            return Response(new_track.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 #tracks/<track_id>
 
 class TrackDetail(APIView):
